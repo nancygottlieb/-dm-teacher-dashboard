@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM Teacher Training Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Lucide icons as SVG components
+        const CheckCircle2 = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const Circle = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+        );
+
+        const ChevronDown = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m6 9 6 6 6-6" />
+            </svg>
+        );
+
+        const ChevronRight = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 18 6-6-6-6" />
+            </svg>
+        );
+
+        const Play = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
+            </svg>
+        );
+
+        const FileText = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14,2 14,8 20,8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10,9 9,9 8,9"></polyline>
+            </svg>
+        );
+
+        const BookOpen = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 18v-6a9 9 0 0118 0v6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" />
+            </svg>
+        );
+
+        const Users = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4"></circle>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M23 21v-2a4 4 0 00-3-3.87" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 3.13a4 4 0 010 7.75" />
+            </svg>
+        );
+
+        const Clock = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12,6 12,12 16,14"></polyline>
+            </svg>
+        );
+
+        const Mic = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 10v2a7 7 0 01-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+        );
+
+        const User = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        );
+
+        const Save = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                <polyline points="17,21 17,13 7,13 7,21"></polyline>
+                <polyline points="7,3 7,8 15,8"></polyline>
+            </svg>
+        );
+
+        const AlertCircle = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        );
+
+        const Link = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+            </svg>
+        );
+
+        // Main Dashboard Component
+        const DashboardApp = () => {
+            const [studentName, setStudentName] = useState('');
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            const [saveStatus, setSaveStatus] = useState('saved');
+            const [lastSaved, setLastSaved] = useState(null);
+
+            // ===== COURSE DATA - CUSTOMIZE HERE =====
+            const [courseData, setCourseData] = useState({
+                title: "18-Day Intensive DM Teacher Training Program",
+                subtitle: "Direct Method Implementation for Experienced Students",
+                schedule: "Monday to Friday, 10:30 AM - 1:00 PM",
+                duration: "18 days (approximately 3.5 weeks)",
+                weeks: [
+                    {
+                        id: 1,
+                        title: "Week 1: Foundation & Rapid Skill Building",
+                        expanded: true,
+                        days: [
+                            {
+                                id: 1,
+                                title: "Day 1: Program Introduction & Direct Method Overview",
+                                expanded: false,
+                                // ===== ONLINE COMPONENTS (LEFT SIDE) - CUSTOMIZE TITLES AND URLS =====
+                                onlineComponents: [
+                                    { 
+                                        id: 101, 
+                                        title: "🎥 Video: Direct Method Philosophy & Principles (30 min)", 
+                                        type: "video", 
+                                        completed: false, 
+                                        url: "https://drive.google.com/file/d/YOUR_VIDEO_ID_1/view", 
+                                        hasLink: true 
+                                    },
+                                    { 
+                                        id: 102, 
+                                        title: "📚 PDF Study: Teacher's Handbook Reading 1", 
+                                        type: "reading", 
+                                        completed: false, 
+                                        url: "https://docs.google.com/document/d/1TeY4WioUEBognKdTK3vE_mcp9q9Rf0O6oI5rU4XN6hk/edit?usp=sharing", 
+                                        hasLink: true 
+                                    },
+                                    { 
+                                        id: 103, 
+                                        title: "✅ Interactive Quiz: Direct Method Fundamentals for Reading 1 (10 questions)", 
+                                        type: "quiz", 
+                                        completed: false, 
+                                        url: "https://forms.gle/73cPge24YhWKUbZu8", 
+                                        hasLink: true
+                                    },
+                                    { 
+                                        id: 104, 
+                                        title: "🎧 Audio: Question & Answer Work Methodology (20 min)", 
+                                        type: "audio", 
+                                        completed: false, 
+                                        url: "https://drive.google.com/file/d/YOUR_AUDIO_ID_1/view", 
+                                        hasLink: true 
+                                    },
+                                    { 
+                                        id: 105, 
+                                        title: "🎤 Recording: Submit 2-minute self-introduction using DM principles", 
+                                        type: "assignment", 
+                                        completed: false, 
+                                        url: "https://forms.gle/YOUR_SUBMISSION_FORM_1", 
+                                        hasLink: true 
+                                    },
+                                    { 
+                                        id: 106, 
+                                        title: "✍️ Written Assignment: Identify key differences between traditional and Direct Method", 
+                                        type: "assignment", 
+                                        completed: false, 
+                                        url: "https://docs.google.com/document/d/YOUR_DOC_ID_1/copy", 
+                                        hasLink: true 
+                                    }
+                                ],
+                                // ===== IN-PERSON COMPONENTS (RIGHT SIDE) - CUSTOMIZE TITLES =====
+                                inPersonComponents: [
+                                    { 
+                                        id: 107, 
+                                        title: "👋 Welcome & Program Overview (15 min)", 
+                                        type: "session", 
+                                        completed: false, 
+                                        url: "", 
+                                        hasLink: false 
+                                    },
+                                    { 
+                                        id: 108, 
+                                        title: "🎭 Live Demonstration: Perfect DM lesson by master trainer (30 min)", 
+                                        type: "demo", 
+                                        completed: false, 
+                                        url: "", 
+                                        hasLink: false 
+                                    },
+                                    { 
+                                        id: 109, 
+                                        title: "💬 Q&A Work Practice: Fundamental techniques (45 min)", 
+                                        type: "practice", 
+                                        completed: false, 
+                                        url: "", 
+                                        hasLink: false 
+                                    },
+                                    { 
+                                        id: 110, 
+                                        title: "📖 Fast Reading Introduction: Speed and clarity standards (30 min)", 
+                                        type: "session", 
+                                        completed: false, 
+                                        url: "", 
+                                        hasLink: false 
+                                    },
+                                    { 
+                                        id: 111, 
+                                        title: "📊 Individual Assessment: Baseline evaluation (20 min)", 
+                                        type: "assessment", 
+                                        completed: false, 
+                                        url: "", 
+                                        hasLink: false 
+                                    }
+                                ]
+                            },
+                            {
+                                id: 2,
+                                title: "Day 2: Fast Reading Mastery & Unit 1",
+                                expanded: false,
+                                onlineComponents: [
+                                    { id: 201, title: "🎥 Fast Reading Masterclass: 240 words/minute technique (45 min)", type: "video", completed: false, url: "https://drive.google.com/file/d/YOUR_VIDEO_ID_2/view", hasLink: true },
+                                    { id: 202, title: "🎥 Unit 1 Complete Demonstration (40 min)", type: "video", completed: false, url: "https://drive.google.com/file/d/YOUR_VIDEO_ID_3/view", hasLink: true },
+                                    { id: 203, title: "✅ Quiz: Unit 1 vocabulary and structures (30 questions)", type: "quiz", completed: false, url: "https://forms.gle/YOUR_QUIZ_ID_2", hasLink: true }
+                                ],
+                                inPersonComponents: [
+                                    { id: 208, title: "📊 Fast Reading Assessment: Individual 240 words/minute test (30 min)", type: "assessment", completed: false, url: "", hasLink: false },
+                                    { id: 209, title: "💬 Unit 1 Page 2 Teaching Practice: Possessive adjectives (60 min)", type: "practice", completed: false, url: "", hasLink: false }
+                                ]
+                            }
+                            // Add more days here following the same pattern
+                        ]
+                    }
+                    // Add Week 2 and Week 3 here following the same pattern
+                ]
+            });
+
+            // Load progress from localStorage when component mounts
+            useEffect(() => {
+                if (studentName && isLoggedIn) {
+                    loadProgressFromLocalStorage();
+                }
+            }, [studentName, isLoggedIn]);
+
+            // Save progress to localStorage
+            const saveProgressToLocalStorage = (updatedCourseData) => {
+                try {
+                    const progressData = {
+                        studentName,
+                        courseData: updatedCourseData,
+                        lastSaved: new Date().toISOString()
+                    };
+                    localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
+                    console.log('Progress saved to browser storage');
+                } catch (error) {
+                    console.error('Error saving to localStorage:', error);
+                }
+            };
+
+            // Load progress from localStorage
+            const loadProgressFromLocalStorage = () => {
+                try {
+                    const savedData = localStorage.getItem(`dm-progress-${studentName}`);
+                    if (savedData) {
+                        const progressData = JSON.parse(savedData);
+                        setCourseData(progressData.courseData);
+                        setLastSaved(new Date(progressData.lastSaved));
+                        console.log('Progress loaded from browser storage');
+                    }
+                } catch (error) {
+                    console.error('Error loading from localStorage:', error);
+                }
+            };
+            // Google Sheets integration + localStorage backup
+            const saveProgressToSheets = async (elementId, completed, weekId, dayId, isOnline) => {
+                setSaveStatus('saving');
+                
+                try {
+                    // Simulate API call to Google Sheets
+                    const progressData = {
+                        studentName,
+                        elementId,
+                        completed,
+                        weekId,
+                        dayId,
+                        isOnline,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Send to Google Sheets via Apps Script
+const response = await fetch('https://script.google.com/macros/s/AKfycbxJFz3BSTA6mCyqpasx_l0iy3YE4FpctFkkF6VGEY_cv2dvtBrfUth1tTNxXgKtlZBQ/exec', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(progressData)
+});
+
+if (response.ok) {
+    const result = await response.json();
+    console.log('Successfully saved to Google Sheets:', result);
+} else {
+    throw new Error('Failed to save to Google Sheets');
+}
+                    
+                    setSaveStatus('saved');
+                    setLastSaved(new Date());
+                    
+                } catch (error) {
+                    console.error('Error saving to Google Sheets:', error);
+                    setSaveStatus('error');
+                }
+            };
+
+            const getTypeIcon = (type) => {
+                const iconClass = "w-4 h-4";
+                switch (type) {
+                    case 'video': return <Play className={`${iconClass} text-red-500`} />;
+                    case 'reading': return <FileText className={`${iconClass} text-blue-500`} />;
+                    case 'assignment': return <BookOpen className={`${iconClass} text-green-500`} />;
+                    case 'quiz': return <CheckCircle2 className={`${iconClass} text-purple-500`} />;
+                    case 'audio': return <Mic className={`${iconClass} text-orange-500`} />;
+                    case 'practice': return <Users className={`${iconClass} text-indigo-500`} />;
+                    case 'assessment': return <CheckCircle2 className={`${iconClass} text-red-600`} />;
+                    case 'session': return <Clock className={`${iconClass} text-gray-500`} />;
+                    case 'demo': return <Play className={`${iconClass} text-yellow-500`} />;
+                    default: return <Clock className={`${iconClass} text-gray-500`} />;
+                }
+            };
+
+            const toggleWeekExpanded = (weekId) => {
+                setCourseData(prev => ({
+                    ...prev,
+                    weeks: prev.weeks.map(week =>
+                        week.id === weekId
+                            ? { ...week, expanded: !week.expanded }
+                            : week
+                    )
+                }));
+            };
+
+            const toggleDayExpanded = (weekId, dayId) => {
+                setCourseData(prev => ({
+                    ...prev,
+                    weeks: prev.weeks.map(week =>
+                        week.id === weekId
+                            ? {
+                                  ...week,
+                                  days: week.days.map(day =>
+                                      day.id === dayId
+                                          ? { ...day, expanded: !day.expanded }
+                                          : day
+                                  )
+                              }
+                            : week
+                    )
+                }));
+            };
+
+            const toggleElementCompleted = async (weekId, dayId, elementId, isOnline) => {
+                // Update local state
+                const updatedCourseData = {
+                    ...courseData,
+                    weeks: courseData.weeks.map(week =>
+                        week.id === weekId
+                            ? {
+                                  ...week,
+                                  days: week.days.map(day =>
+                                      day.id === dayId
+                                          ? {
+                                              ...day,
+                                              [isOnline ? 'onlineComponents' : 'inPersonComponents']: day[isOnline ? 'onlineComponents' : 'inPersonComponents'].map(element =>
+                                                  element.id === elementId
+                                                      ? { ...element, completed: !element.completed }
+                                                      : element
+                                              )
+                                          }
+                                          : day
+                                  )
+                              }
+                            : week
+                    )
+                };
+                
+                setCourseData(updatedCourseData);
+                
+                // Save to browser storage immediately
+                saveProgressToLocalStorage(updatedCourseData);
+
+                // Save to Google Sheets
+                const element = courseData.weeks
+                    .find(w => w.id === weekId)?.days
+                    .find(d => d.id === dayId)?.[isOnline ? 'onlineComponents' : 'inPersonComponents']
+                    .find(e => e.id === elementId);
+                
+                if (element) {
+                    await saveProgressToSheets(elementId, !element.completed, weekId, dayId, isOnline);
+                }
+            };
+
+            const getOverallProgress = () => {
+                const totalElements = courseData.weeks.reduce((sum, week) => 
+                    sum + week.days.reduce((daySum, day) => 
+                        daySum + day.onlineComponents.length + day.inPersonComponents.length, 0
+                    ), 0
+                );
+                const completedElements = courseData.weeks.reduce((sum, week) => 
+                    sum + week.days.reduce((daySum, day) => 
+                        daySum + day.onlineComponents.filter(el => el.completed).length + 
+                        day.inPersonComponents.filter(el => el.completed).length, 0
+                    ), 0
+                );
+                return totalElements > 0 ? Math.round((completedElements / totalElements) * 100) : 0;
+            };
+
+            const getDayProgress = (day) => {
+                const totalElements = day.onlineComponents.length + day.inPersonComponents.length;
+                const completedElements = day.onlineComponents.filter(el => el.completed).length + 
+                                         day.inPersonComponents.filter(el => el.completed).length;
+                return totalElements > 0 ? Math.round((completedElements / totalElements) * 100) : 0;
+            };
+
+            const handleLogin = () => {
+                if (studentName.trim()) {
+                    setIsLoggedIn(true);
+                }
+            };
+
+            // Login Screen
+            if (!isLoggedIn) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
+                        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+                            <div className="text-center mb-6">
+                                <User className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                                <h1 className="text-2xl font-bold text-gray-800 mb-2">DM Teacher Training</h1>
+                                <p className="text-gray-600">Enter your name to access your progress dashboard</p>
+                            </div>
+                            
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Student Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={studentName}
+                                        onChange={(e) => setStudentName(e.target.value)}
+                                        placeholder="Enter your full name"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                                    />
+                                </div>
+                                
+                                <button
+                                    onClick={handleLogin}
+                                    disabled={!studentName.trim()}
+                                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Access Dashboard
+                                </button>
+                            </div>
+                            
+                            <div className="mt-6 text-xs text-gray-500 text-center">
+                                Your progress will be automatically saved and visible to your trainers
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Main Dashboard
+            return (
+                <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
+                    {/* Header */}
+                    <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="flex-1">
+                                <h1 className="text-3xl font-bold text-gray-800 mb-2">{courseData.title}</h1>
+                                <p className="text-lg text-gray-600 mb-2">{courseData.subtitle}</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm text-gray-600">
+                                    <div><strong>Schedule:</strong> {courseData.schedule}</div>
+                                    <div><strong>Duration:</strong> {courseData.duration}</div>
+                                </div>
+                            </div>
+                            
+                            <div className="text-right">
+                                <div className="text-sm text-gray-600 mb-2">Logged in as:</div>
+                                <div className="text-lg font-medium text-blue-600">{studentName}</div>
+                                
+                                {/* Save Status */}
+                                <div className="flex items-center justify-end mt-2 text-xs">
+                                    {saveStatus === 'saving' && (
+                                        <div className="flex items-center text-yellow-600">
+                                            <Save className="w-3 h-3 mr-1 animate-spin" />
+                                            Saving...
+                                        </div>
+                                    )}
+                                    {saveStatus === 'saved' && lastSaved && (
+                                        <div className="flex items-center text-green-600">
+                                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                                            Saved {lastSaved.toLocaleTimeString()}
+                                        </div>
+                                    )}
+                                    {saveStatus === 'error' && (
+                                        <div className="flex items-center text-red-600">
+                                            <AlertCircle className="w-3 h-3 mr-1" />
+                                            Save failed
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-4">
+                            <div className="flex-1 bg-gray-200 rounded-full h-3">
+                                <div 
+                                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                                    style={{ width: `${getOverallProgress()}%` }}
+                                ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-600">
+                                {getOverallProgress()}% Complete
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Weeks */}
+                    <div className="space-y-6">
+                        {courseData.weeks.map((week) => (
+                            <div key={week.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                                {/* Week Header */}
+                                <div 
+                                    className="p-4 border-b bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors"
+                                    onClick={() => toggleWeekExpanded(week.id)}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-3">
+                                            {week.expanded ? 
+                                                <ChevronDown className="w-6 h-6 text-blue-600" /> : 
+                                                <ChevronRight className="w-6 h-6 text-blue-600" />
+                                            }
+                                            <h2 className="text-xl font-semibold text-blue-800">{week.title}</h2>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Week Content */}
+                                {week.expanded && (
+                                    <div className="p-4">
+                                        <div className="space-y-4">
+                                            {week.days.map((day) => (
+                                                <div key={day.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                                                    {/* Day Header */}
+                                                    <div 
+                                                        className="p-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors border-b"
+                                                        onClick={() => toggleDayExpanded(week.id, day.id)}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center space-x-3">
+                                                                {day.expanded ? 
+                                                                    <ChevronDown className="w-5 h-5 text-gray-600" /> : 
+                                                                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                                                                }
+                                                                <h3 className="text-lg font-medium text-gray-800">{day.title}</h3>
+                                                            </div>
+                                                            <div className="flex items-center space-x-3">
+                                                                <div className="flex-1 bg-gray-200 rounded-full h-2 w-24">
+                                                                    <div 
+                                                                        className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                                                                        style={{ width: `${getDayProgress(day)}%` }}
+                                                                    ></div>
+                                                                </div>
+                                                                <span className="text-sm text-gray-600">{getDayProgress(day)}%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Day Content */}
+                                                    {day.expanded && (
+                                                        <div className="p-4">
+                                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                                {/* Online Components */}
+                                                                <div>
+                                                                    <h4 className="text-md font-semibold text-blue-700 mb-3 flex items-center">
+                                                                        <Play className="w-4 h-4 mr-2" />
+                                                                        Online Components ({day.onlineComponents.length} items)
+                                                                    </h4>
+                                                                    <div className="space-y-2">
+                                                                        {day.onlineComponents.map((element) => (
+                                                                            <div 
+                                                                                key={element.id}
+                                                                                className="flex items-start space-x-3 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+                                                                            >
+                                                                                <button
+                                                                                    onClick={() => toggleElementCompleted(week.id, day.id, element.id, true)}
+                                                                                    className="flex-shrink-0 mt-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                                                                                >
+                                                                                    {element.completed ? (
+                                                                                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                                                                    ) : (
+                                                                                        <Circle className="w-5 h-5 text-gray-400 hover:text-green-500" />
+                                                                                    )}
+                                                                                </button>
+                                                                                
+                                                                                <div className="flex items-start space-x-2 flex-1">
+                                                                                    {getTypeIcon(element.type)}
+                                                                                    <div className="flex-1">
+                                                                                        {element.hasLink && element.url ? (
+                                                                                            <a
+                                                                                                href={element.url}
+                                                                                                target="_blank"
+                                                                                                rel="noopener noreferrer"
+                                                                                                className={`text-sm leading-relaxed hover:underline cursor-pointer ${
+                                                                                                    element.completed 
+                                                                                                        ? 'text-gray-500 line-through' 
+                                                                                                        : 'text-blue-600 hover:text-blue-800'
+                                                                                                }`}
+                                                                                            >
+                                                                                                {element.title}
+                                                                                                <Link className="w-3 h-3 inline ml-1" />
+                                                                                            </a>
+                                                                                        ) : (
+                                                                                            <span 
+                                                                                                className={`text-sm leading-relaxed ${
+                                                                                                    element.completed 
+                                                                                                        ? 'text-gray-500 line-through' 
+                                                                                                        : 'text-gray-700'
+                                                                                                }`}
+                                                                                            >
+                                                                                                {element.title}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* In-Person Components */}
+                                                                <div>
+                                                                    <h4 className="text-md font-semibold text-green-700 mb-3 flex items-center">
+                                                                        <Users className="w-4 h-4 mr-2" />
+                                                                        In-Person Components ({day.inPersonComponents.length} items)
+                                                                    </h4>
+                                                                    <div className="space-y-2">
+                                                                        {day.inPersonComponents.map((element) => (
+                                                                            <div 
+                                                                                key={element.id}
+                                                                                className="flex items-start space-x-3 p-2 rounded-lg hover:bg-green-50 transition-colors"
+                                                                            >
+                                                                                <button
+                                                                                    onClick={() => toggleElementCompleted(week.id, day.id, element.id, false)}
+                                                                                    className="flex-shrink-0 mt-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 rounded"
+                                                                                >
+                                                                                    {element.completed ? (
+                                                                                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                                                                    ) : (
+                                                                                        <Circle className="w-5 h-5 text-gray-400 hover:text-green-500" />
+                                                                                    )}
+                                                                                </button>
+                                                                                
+                                                                                <div className="flex items-start space-x-2 flex-1">
+                                                                                    {getTypeIcon(element.type)}
+                                                                                    <div className="flex-1">
+                                                                                        {element.hasLink && element.url ? (
+                                                                                            <a
+                                                                                                href={element.url}
+                                                                                                target="_blank"
+                                                                                                rel="noopener noreferrer"
+                                                                                                className={`text-sm leading-relaxed hover:underline cursor-pointer ${
+                                                                                                    element.completed 
+                                                                                                        ? 'text-gray-500 line-through' 
+                                                                                                        : 'text-blue-600 hover:text-blue-800'
+                                                                                                }`}
+                                                                                            >
+                                                                                                {element.title}
+                                                                                                <Link className="w-3 h-3 inline ml-1" />
+                                                                                            </a>
+                                                                                        ) : (
+                                                                                            <span 
+                                                                                                className={`text-sm leading-relaxed ${
+                                                                                                    element.completed 
+                                                                                                        ? 'text-gray-500 line-through' 
+                                                                                                        : 'text-gray-700'
+                                                                                                }`}
+                                                                                            >
+                                                                                                {element.title}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Information Panel */}
+                    <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4">Progress Tracking</h3>
+                        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <CheckCircle2 className="h-5 w-5 text-blue-400" />
+                                </div>
+                                <div className="ml-3">
+                                    <p className="text-sm text-blue-700">
+                                        Your progress is automatically saved to Google Sheets and visible to your trainers in real-time. 
+                                        You can access this dashboard from any device and your progress will always be preserved.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="mt-4 p-4 bg-green-50 border-l-4 border-green-400 rounded">
+                            <h4 className="font-medium text-green-800 mb-2">✅ Progress Saving Enabled:</h4>
+                            <ul className="text-sm text-green-700 space-y-1">
+                                <li>• Your progress now saves automatically in your browser</li>
+                                <li>• Work will be remembered when you return</li>
+                                <li>• Ready for Google Sheets integration for teacher tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<DashboardApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
