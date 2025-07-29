@@ -339,10 +339,7 @@ delete window[callbackName];
 const url = `https://script.google.com/macros/s/AKfycbzTWy57FWlSxnKNLkcH3D3sx_coWLnZIBqX9tkRlZoF7k-a7n8FyDmN8DO8d1Ok_h8r/exec?callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(progressData))}`;
 script.src = url;
 document.head.appendChild(script);
-    // Cleanup
-    document.head.removeChild(script);
-    delete window[callbackName];
-};
+  
 
      
                 } catch (error) {
