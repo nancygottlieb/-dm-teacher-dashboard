@@ -328,7 +328,7 @@ window[callbackName] = function(response) {
         console.error('❌ Save failed:', response.error);
         document.getElementById('saveStatus').textContent = 'Save failed: ' + response.error;
         document.getElementById('saveStatus').style.color = '#ef4444';
-    }
+    };
 
     // Cleanup
 document.head.removeChild(script);
