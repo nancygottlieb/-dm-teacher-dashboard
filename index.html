@@ -314,13 +314,40 @@
                     };
 
                     // Send to Google Sheets via Apps Script
-const response = await fetch('https://script.google.com/macros/s/AKfycbzTWy57FWlSxnKNLkcH3D3sx_coWLnZIBqX9tkRlZoF7k-a7n8FyDmN8DO8d1Ok_h8r/exec', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(progressData)
-});
+// Use JSONP to avoid CORS issues
+const script = document.createElement('script');
+const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+
+// Create the callback function
+window[callbackName] = function(response) {
+    if (response.success) {
+        console.log('✅ Save successful:', response.message);
+        document.getElementById('saveStatus').textContent = 'Saved successfully!';
+        document.getElementById('saveStatus').style.color = '#22c55e';
+    } else {
+        console.error('❌ Save failed:', response.error);
+        document.getElementById('saveStatus').textContent = 'Save failed: ' + response.error;
+        document.getElementById('saveStatus').style.color = '#ef4444';
+    }
+
+    // Cleanup
+document.head.removeChild(script);
+delete window[callbackName];
+};
+
+// Make the JSONP request
+const url = `https://script.google.com/macros/s/AKfycbzTWy57FWlSxnKNLkcH3D3sx_coWLnZIBqX9tkRlZoF7k-a7n8FyDmN8DO8d1Ok_h8r/exec?callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(progressData))}`;
+script.src = url;
+document.head.appendChild(script);
+    // Cleanup
+    document.head.removeChild(script);
+    delete window[callbackName];
+};
+
+// Make the JSONP request
+const url = `https://script.google.com/macros/s/AKfycbzTWy57FWlSxnKNLkcH3D3sx_coWLnZIBqX9tkRlZoF7k-a7n8FyDmN8DO8d1Ok_h8r/exec?callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(progressData))}`;
+script.src = url;
+docume
 
 if (response.ok) {
     const result = await response.json();
