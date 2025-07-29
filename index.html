@@ -344,21 +344,7 @@ document.head.appendChild(script);
     delete window[callbackName];
 };
 
-// Make the JSONP request
-const url = `https://script.google.com/macros/s/AKfycbzTWy57FWlSxnKNLkcH3D3sx_coWLnZIBqX9tkRlZoF7k-a7n8FyDmN8DO8d1Ok_h8r/exec?callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(progressData))}`;
-script.src = url;
-docume
-
-if (response.ok) {
-    const result = await response.json();
-    console.log('Successfully saved to Google Sheets:', result);
-} else {
-    throw new Error('Failed to save to Google Sheets');
-}
-                    
-                    setSaveStatus('saved');
-                    setLastSaved(new Date());
-                    
+     
                 } catch (error) {
                     console.error('Error saving to Google Sheets:', error);
                     setSaveStatus('error');
