@@ -302,48 +302,42 @@
         const overallProgress = Math.round((completedCount / totalActivities) * 100);
 
         // Save progress using JSONP
-        const saveProgress = (activityId, activityData) => {
+        // Save progress using Google Forms (no CORS issues!)
+        const saveProgress = (activityId, activityData, weekId, dayId) => {
             if (!studentName) return;
             
             setSaveStatus('saving');
             
             try {
-                const progressData = {
-                    studentName,
-                    activityId,
-                    completed: true,
-                    activityTitle: activityData.title,
-                    activityType: activityData.type,
-                    overallProgress,
-                    completedCount,
-                    totalActivities,
-                    timestamp: new Date().toISOString()
-                };
+                // Prepare form data for Google Forms
+                const formData = new FormData();
+                formData.append('entry.156249254', studentName);           // Student Name
+                formData.append('entry.159715460', activityId);            // Activity ID
+                formData.append('entry.131043248', activityData.title);    // Activity Title
+                formData.append('entry.502094768', activityData.type);     // Activity Type
+                formData.append('entry.983438482', dayId || 'Day 1');      // Day
+                formData.append('entry.107286950', weekId || 'Week 1');    // Week
+                formData.append('entry.192181327', overallProgress + '%'); // Overall Progress
+                formData.append('entry.2025349170', new Date().toISOString()); // Timestamp
 
-                // JSONP request
-                const script = document.createElement('script');
-                const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-
-                window[callbackName] = function(response) {
-                    if (response.success) {
-                        console.log('✅ Save successful:', response.message);
-                        setSaveStatus('saved');
-                    } else {
-                        console.error('❌ Save failed:', response.error);
-                        setSaveStatus('error');
-                    }
-                    
-                    // Cleanup
-                    document.head.removeChild(script);
-                    delete window[callbackName];
-                };
-
-                const url = `https://script.google.com/macros/s/AKfycbzTWy57FWlSxnKNLkcH3D3sx_coWLnZIBqX9tkRlZoF7k-a7n8FyDmN8DO8d1Ok_h8r/exec?callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(progressData))}`;
-                script.src = url;
-                document.head.appendChild(script);
+                // Submit to Google Form (no CORS issues!)
+                fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                })
+                .then(() => {
+                    console.log('✅ Save successful via Google Forms!');
+                    setSaveStatus('saved');
+                    setTimeout(() => setSaveStatus(''), 3000);
+                })
+                .catch(error => {
+                    console.error('❌ Save failed:', error);
+                    setSaveStatus('error');
+                });
 
             } catch (error) {
-                console.error('Error saving:', error);
+                console.error('Error preparing form data:', error);
                 setSaveStatus('error');
             }
         };
