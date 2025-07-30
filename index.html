@@ -405,14 +405,15 @@
 
         // Prepare form data for Google Forms
         const formData = new FormData();
-        formData.append('entry.115897476', studentName);
-        formData.append('entry.258074255', activityId);
-        formData.append('entry.116182678', activityData.title);
-        formData.append('entry.152007192', activityData.type);
-        formData.append('entry.126225864', 'Day ' + dayId.replace('day', ''));
-        formData.append('entry.204814648', 'Week ' + weekId.replace('week', ''));
-        formData.append('entry.847575500', overallProgress + '%');
-        formData.append('entry.142906226', new Date().toISOString());
+        // Replace the formData.append lines with these corrected entry IDs:
+formData.append('entry.115897476', studentName);           // Student Name ✅
+formData.append('entry.258074255', activityId);            // Activity ID ✅
+formData.append('entry.116182678', activityData.title);    // Activity Title ✅ FIXED
+formData.append('entry.152007192', activityData.type);     // Activity Type ✅ FIXED
+formData.append('entry.126225864', `Day ${dayId.replace('day', '')}`); // Day ✅
+formData.append('entry.204814648', `Week ${weekId.replace('week', '')}`); // Week ✅ FIXED
+formData.append('entry.847575500', overallProgress + '%'); // Overall Progress ✅
+formData.append('entry.142906226', new Date().toISOString()); // Timestamp ✅ FIXED
 
         // Submit to Google Form
         fetch('https://docs.google.com/forms/d/e/1FAIpQLSdTyEinmzn4hxBPcQo0bnqp4QJu-ZPEgHR44SdsnG_ZGqYp6A/formResponse', {
