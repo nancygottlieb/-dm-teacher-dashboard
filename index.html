@@ -301,7 +301,6 @@
         const completedCount = completedActivities.size;
         const overallProgress = Math.round((completedCount / totalActivities) * 100);
 
-        // Save progress using JSONP
         // Save progress using Google Forms (no CORS issues!)
         const saveProgress = (activityId, activityData, weekId, dayId) => {
             if (!studentName) return;
@@ -342,7 +341,7 @@
             }
         };
 
-        const toggleActivity = (activityId, activityData) => {
+        const toggleActivity = (activityId, activityData, weekId, dayId) => {
             if (!studentName) return;
             
             const newCompleted = new Set(completedActivities);
@@ -350,7 +349,7 @@
                 newCompleted.delete(activityId);
             } else {
                 newCompleted.add(activityId);
-                saveProgress(activityId, activityData);
+                saveProgress(activityId, activityData, weekId, dayId);
             }
             setCompletedActivities(newCompleted);
         };
@@ -419,7 +418,7 @@
                                     placeholder="Enter your name"
                                     className="px-3 py-1 border border-gray-300 rounded text-sm"
                                 />
-                                <div className={`text-sm mt-2 ${getSaveStatusColor()}`}>
+                                <div id="saveStatus" className={`text-sm mt-2 ${getSaveStatusColor()}`}>
                                     {getSaveStatusMessage()}
                                 </div>
                             </div>
@@ -455,133 +454,143 @@
                                     <div key={dayId} className="mb-4 border border-gray-200 rounded-lg">
                                         {/* Day Header */}
                                         <div 
-                                            className="p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
-                                            onClick={() => toggle
-                                                onClick={() => toggleDay(dayId)}
-                                        >
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-lg">
-                                                        {isExpanded ? '▼' : '▶'}
-                                                    </span>
-                                                    <h3 className="text-xl font-semibold text-gray-800">
-                                                        {day.title}
-                                                    </h3>
-                                                </div>
-                                                <div className="flex items-center gap-4 text-sm text-gray-600">
-                                                    <span>Online Time: {day.onlineTime}</span>
-                                                    <span>{dayCompletedCount}/{day.activities.length} completed</span>
-                                                    <div className="w-20 bg-gray-200 rounded-full h-2">
-                                                        <div 
-                                                            className="bg-green-500 h-2 rounded-full transition-all duration-300"
-                                                            style={{width: `${dayProgress}%`}}
-                                                        ></div>
-                                                    </div>
-                                                    <span className="font-medium">{dayProgress}%</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                           className="p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                                           onClick={() => toggleDay(dayId)}
+                                       >
+                                           <div className="flex justify-between items-center">
+                                               <div className="flex items-center gap-3">
+                                                   <span className="text-lg">
+                                                       {isExpanded ? '▼' : '▶'}
+                                                   </span>
+                                                   <h3 className="text-xl font-semibold text-gray-800">
+                                                       {day.title}
+                                                   </h3>
+                                               </div>
+                                               <div className="flex items-center gap-4 text-sm text-gray-600">
+                                                   <span>Online Time: {day.onlineTime}</span>
+                                                   <span>{dayCompletedCount}/{day.activities.length} completed</span>
+                                                   <div className="w-20 bg-gray-200 rounded-full h-2">
+                                                       <div 
+                                                           className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                                                           style={{width: `${dayProgress}%`}}
+                                                       ></div>
+                                                   </div>
+                                                   <span className="font-medium">{dayProgress}%</span>
+                                               </div>
+                                           </div>
+                                       </div>
 
-                                        {/* Day Content */}
-                                        {isExpanded && (
-                                            <div className="p-4">
-                                                {/* In-Person Focus */}
-                                                <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                                                    <h4 className="font-medium text-blue-800 mb-2">
-                                                        👥 In-Person Focus:
-                                                    </h4>
-                                                    <p className="text-blue-700">{day.inPersonFocus}</p>
-                                                </div>
+                                       {/* Day Content */}
+                                       {isExpanded && (
+                                           <div className="p-4">
+                                               {/* In-Person Focus */}
+                                               <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                                                   <h4 className="font-medium text-blue-800 mb-2">
+                                                       👥 In-Person Focus:
+                                                   </h4>
+                                                   <p className="text-blue-700">{day.inPersonFocus}</p>
+                                               </div>
 
-                                                {/* Activities */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                    {day.activities.map((activity, index) => {
-                                                        const activityId = `${dayId}-${activity.title}`;
-                                                        const isCompleted = completedActivities.has(activityId);
-                                                        
-                                                        return (
-                                                            <div 
-                                                                key={index}
-                                                                className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                                                                    isCompleted 
-                                                                        ? 'bg-green-50 border-green-300' 
-                                                                        : 'bg-white border-gray-200 hover:border-blue-300'
-                                                                }`}
-                                                                onClick={() => toggleActivity(activityId, activity)}
-                                                            >
-                                                                <div className="flex items-start gap-2 mb-2">
-                                                                    <span className="text-lg">
-                                                                        {getActivityIcon(activity.type)}
-                                                                    </span>
-                                                                    <div className="flex-1">
-                                                                        <h5 className="font-medium text-gray-800 text-sm leading-tight">
-                                                                            {activity.title}
-                                                                        </h5>
-                                                                        {activity.duration && (
-                                                                            <p className="text-xs text-gray-500 mt-1">
-                                                                                Duration: {activity.duration}
-                                                                            </p>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                                
-                                                                <div className="flex justify-between items-center">
-                                                                    <span className={`text-xs px-2 py-1 rounded-full ${
-                                                                        activity.type === 'video' ? 'bg-red-100 text-red-700' :
-                                                                        activity.type === 'audio' ? 'bg-orange-100 text-orange-700' :
-                                                                        activity.type === 'reading' ? 'bg-blue-100 text-blue-700' :
-                                                                        activity.type === 'quiz' ? 'bg-purple-100 text-purple-700' :
-                                                                        activity.type === 'exercise' ? 'bg-green-100 text-green-700' :
-                                                                        'bg-gray-100 text-gray-700'
-                                                                    }`}>
-                                                                        {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
-                                                                    </span>
-                                                                    
-                                                                    {isCompleted ? (
-                                                                        <span className="text-green-600 text-sm font-medium">
-                                                                            ✓ Done
-                                                                        </span>
-                                                                    ) : (
-                                                                        <span className="text-gray-400 text-sm">
-                                                                            Click to complete
-                                                                        </span>
-                                                                    )}
-                                                                </div>
+                                               {/* Activities */}
+                                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                   {day.activities.map((activity, index) => {
+                                                       const activityId = `${dayId}-${activity.title}`;
+                                                       const isCompleted = completedActivities.has(activityId);
+                                                       
+                                                       return (
+                                                           <div 
+                                                               key={index}
+                                                               className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                                                                   isCompleted 
+                                                                       ? 'bg-green-50 border-green-300' 
+                                                                       : 'bg-white border-gray-200 hover:border-blue-300'
+                                                               }`}
+                                                               onClick={() => toggleActivity(activityId, activity, weekKey, dayKey)}
+                                                           >
+                                                               <div className="flex items-start gap-2 mb-2">
+                                                                   <span className="text-lg">
+                                                                       {getActivityIcon(activity.type)}
+                                                                   </span>
+                                                                   <div className="flex-1">
+                                                                       <h5 className="font-medium text-gray-800 text-sm leading-tight">
+                                                                           {activity.title}
+                                                                       </h5>
+                                                                       {activity.duration && (
+                                                                           <p className="text-xs text-gray-500 mt-1">
+                                                                               Duration: {activity.duration}
+                                                                           </p>
+                                                                       )}
+                                                                   </div>
+                                                               </div>
+                                                               
+                                                               <div className="flex justify-between items-center">
+                                                                   <span className={`text-xs px-2 py-1 rounded-full ${
+                                                                       activity.type === 'video' ? 'bg-red-100 text-red-700' :
+                                                                       activity.type === 'audio' ? 'bg-orange-100 text-orange-700' :
+                                                                       activity.type === 'reading' ? 'bg-blue-100 text-blue-700' :
+                                                                       activity.type === 'quiz' ? 'bg-purple-100 text-purple-700' :
+                                                                       activity.type === 'exercise' ? 'bg-green-100 text-green-700' :
+                                                                       'bg-gray-100 text-gray-700'
+                                                                   }`}>
+                                                                       {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
+                                                                   </span>
+                                                                   
+                                                                   {isCompleted ? (
+                                                                       <span className="text-green-600 text-sm font-medium">
+                                                                           ✓ Done
+                                                                       </span>
+                                                                   ) : (
+                                                                       <span className="text-gray-400 text-sm">
+                                                                           Click to complete
+                                                                       </span>
+                                                                   )}
+                                                               </div>
 
-                                                                {/* Editable Link */}
-                                                                <div className="mt-2 text-xs text-gray-400 font-mono">
-                                                                    Link: {activity.link}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))}
+                                                               {/* Editable Link */}
+                                                               <div className="mt-2 text-xs text-gray-400 font-mono">
+                                                                   Link: {activity.link}
+                                                               </div>
+                                                           </div>
+                                                       );
+                                                   })}
+                                               </div>
+                                           </div>
+                                       )}
+                                   </div>
+                               );
+                           })}
+                       </div>
+                   ))}
 
-                    {/* Instructions */}
-                    <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-                        <h4 className="font-medium text-yellow-800 mb-2">📝 Customization Instructions:</h4>
-                        <ul className="text-sm text-yellow-700 space-y-1">
-                            <li>• Replace all [REPLACE_WITH_LINK] placeholders with your actual Google Drive links</li>
-                            <li>• To remove activities: Delete entire activity objects from the curriculumData</li>
-                            <li>• To modify titles: Edit the "title" field in each activity</li>
-                            <li>• To change durations: Edit the "duration" field</li>
-                            <li>• All curriculum data is at the top of the code for easy editing</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        );
-    };
+                   {/* Instructions */}
+                   <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                       <h4 className="font-medium text-yellow-800 mb-2">📝 Customization Instructions:</h4>
+                       <ul className="text-sm text-yellow-700 space-y-1">
+                           <li>• Replace all [REPLACE_WITH_LINK] placeholders with your actual Google Drive links</li>
+                           <li>• To remove activities: Delete entire activity objects from the curriculumData</li>
+                           <li>• To modify titles: Edit the "title" field in each activity</li>
+                           <li>• To change durations: Edit the "duration" field</li>
+                           <li>• All curriculum data is at the top of the code for easy editing</li>
+                       </ul>
+                   </div>
 
-    // Render the app
-    ReactDOM.render(<DashboardApp />, document.getElementById('root'));
+                   {/* Success Message */}
+                   <div className="mt-4 p-4 bg-green-50 border-l-4 border-green-400 rounded">
+                       <h4 className="font-medium text-green-800 mb-2">🎉 Google Forms Integration Active!</h4>
+                       <ul className="text-sm text-green-700 space-y-1">
+                           <li>• Progress now saves directly to your Google Sheet via Google Forms</li>
+                           <li>• No more CORS errors or infinite spinning</li>
+                           <li>• Data is reliable and instantly available in your spreadsheet</li>
+                           <li>• Click any activity to test the save functionality</li>
+                       </ul>
+                   </div>
+               </div>
+           </div>
+       );
+   };
+
+   // Render the app
+   ReactDOM.render(<DashboardApp />, document.getElementById('root'));
 </script>
 
 </body>
