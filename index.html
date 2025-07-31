@@ -392,6 +392,7 @@
         // Save progress to both Google Forms and localStorage
       const saveProgress = (activityId, activityData, weekId, dayId, isInPerson) => {
     console.log('🔥 SAVE FUNCTION CALLED!', activityId, activityData); // ADD THIS LINE
+          console.log('📤 FORM DATA BEING SENT:', { studentName, activityId, title: activityData.title, type: activityData.type });
     if (!studentName) return;
     // ... rest of functionif (!studentName) return;
     
