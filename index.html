@@ -413,7 +413,6 @@ formData.append('entry.152007192', activityData.type);     // Activity Type ✅ 
 formData.append('entry.126225864', `Day ${dayId.replace('day', '')}`); // Day ✅
 formData.append('entry.204814648', `Week ${weekId.replace('week', '')}`); // Week ✅ FIXED
 formData.append('entry.847575500', overallProgress + '%'); // Overall Progress ✅
-formData.append('entry.142906226', new Date().toISOString()); // Timestamp ✅ FIXED
 
         fetch('https://docs.google.com/forms/d/e/1FAIpQLSdTyEinmzn4hxBPcQo0bnqp4QJu-ZPEgHR44SdsnG_ZGqYp6A/formResponse', {
             method: 'POST',
