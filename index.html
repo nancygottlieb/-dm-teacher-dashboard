@@ -370,12 +370,11 @@
             const weekNum = weekKey.replace('week', '');
             const dayNum = dayKey.replace('day', '');
             const activityNum = activityIndex + 1;
-            const type = isInPerson ? 'P' : 'O'; // P for In-Person, O for Online
-            return `W${weekNum}D${dayNum}A${activityNum}${type}`;
-        };
-
-        // Load previous progress from Google Sheets (simulated with localStorage for now)
-        const loadPreviousProgress = (name) => {
+            // Save progress to both Google Forms and localStorage
+const saveProgress = (activityId, activityData, weekId, dayId, isInPerson) => {
+    if (!studentName) return;
+    
+    setSaveStatus('saving');
             try {
                 const saved = localStorage.getItem(`dm-progress-${name}`);
                 if (saved) {
