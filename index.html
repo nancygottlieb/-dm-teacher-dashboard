@@ -391,6 +391,36 @@ const saveProgress = (activityId, activityData, weekId, dayId) => {
     };
     localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
     
+    // Calculate overall progress
+    const overallProgress = Math.round((newCompleted.size / totalActivities) * 100);
+    
+    // Submit to Google Forms
+    const formData = new FormData();
+    formData.append('entry.115897476', studentName);
+    formData.append('entry.258074255', activityId);
+    formData.append('entry.116182678', activityData.title);
+    formData.append('entry.152007192', activityData.type);
+    formData.append('entry.126225864', dayId.replace('day', 'Day '));
+    formData.append('entry.204814648', weekId.replace('week', 'Week '));
+    formData.append('entry.847575500', overallProgress + '%');
+    
+    fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+    })
+    .then(() => {
+        setSaveStatus('success');
+        setTimeout(() => setSaveStatus(''), 2000);
+    })
+    .catch(() => {
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus(''), 2000);
+    });
+};
+    };
+    localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
+    
     // Submit to Google Forms
     const formData = new FormData();
     formData.append('entry.115897476', studentName);
