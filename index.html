@@ -366,99 +366,326 @@
         const overallProgress = Math.round((completedCount / totalActivities) * 100);
 
         // Generate activity ID
-const generateActivityId = (weekKey, dayKey, activityIndex, isInPerson) => {
-    const weekNum = weekKey.replace('week', '');
-    const dayNum = dayKey.replace('day', '');
-    const activityNum = activityIndex + 1;
-    const type = isInPerson ? 'P' : 'O';
-    return `W${weekNum}D${dayNum}A${activityNum}${type}`;
-};
+        const generateActivityId = (weekKey, dayKey, activityIndex, isInPerson) => {
+            const weekNum = weekKey.replace('week', '');
+            const dayNum = dayKey.replace('day', '');
+            const activityNum = activityIndex + 1;
+            const type = isInPerson ? 'P' : 'O';
+            return `W${weekNum}D${dayNum}A${activityNum}${type}`;
+        };
 
-// Save progress to both Google Forms and localStorage
-const saveProgress = (activityId, activityData, weekId, dayId) => {
-    if (!studentName) return;
-    setSaveStatus('saving');
-    
-    // Save to localStorage
-    const newCompleted = new Set(completedActivities);
-    newCompleted.add(activityId);
-    setCompletedActivities(newCompleted);
-    
-    const progressData = {
-        studentName: studentName,
-        completedActivities: Array.from(newCompleted),
-        lastUpdated: new Date().toISOString()
-    };
-    localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
-    
-    // Calculate overall progress
-    const overallProgress = Math.round((newCompleted.size / totalActivities) * 100);
-    
-    // Submit to Google Forms
-    const formData = new FormData();
-    formData.append('entry.115897476', studentName);
-    formData.append('entry.258074255', activityId);
-    formData.append('entry.116182678', activityData.title);
-    formData.append('entry.152007192', activityData.type);
-    formData.append('entry.126225864', dayId.replace('day', 'Day '));
-    formData.append('entry.204814648', weekId.replace('week', 'Week '));
-    formData.append('entry.847575500', overallProgress + '%');
-    
-    fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData
-    })
-    .then(() => {
-        setSaveStatus('success');
-        setTimeout(() => setSaveStatus(''), 2000);
-    })
-    .catch(() => {
-        setSaveStatus('error');
-        setTimeout(() => setSaveStatus(''), 2000);
-    });
-};
-    localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
-    
-    // Submit to Google Forms
-    const formData = new FormData();
-    formData.append('entry.115897476', studentName);
-    formData.append('entry.258074255', activityId);
-    formData.append('entry.116182678', activityData.title);
-    formData.append('entry.152007192', activityData.type);
-    formData.append('entry.126225864', dayId.replace('day', 'Day '));
-    formData.append('entry.204814648', weekId.replace('week', 'Week '));
-    formData.append('entry.847575500', overallProgress + '%');
-    
-    fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData
-    })
-    .then(() => {
-        setSaveStatus('success');
-        setTimeout(() => setSaveStatus(''), 2000);
-    })
-    .catch(() => {
-        setSaveStatus('error');
-        setTimeout(() => setSaveStatus(''), 2000);
-    });
-};
+        // Save progress to both Google Forms and localStorage
+        const saveProgress = (activityId, activityData, weekId, dayId) => {
+            if (!studentName) return;
+            setSaveStatus('saving');
+            
+            // Save to localStorage
+            const newCompleted = new Set(completedActivities);
+            newCompleted.add(activityId);
+            setCompletedActivities(newCompleted);
+            
+            const progressData = {
+                studentName: studentName,
+                completedActivities: Array.from(newCompleted),
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
+            
+            // Calculate overall progress for this save
+            const currentProgress = Math.round((newCompleted.size / totalActivities) * 100);
+            
+            // Submit to Google Forms
+            const formData = new FormData();
+            formData.append('entry.115897476', studentName);
+            formData.append('entry.258074255', activityId);
+            formData.append('entry.116182678', activityData.title);
+            formData.append('entry.152007192', activityData.type);
+            formData.append('entry.126225864', dayId.replace('day', 'Day '));
+            formData.append('entry.204814648', weekId.replace('week', 'Week '));
+            formData.append('entry.847575500', currentProgress + '%');
+            
+            fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_
+                  fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
+               method: 'POST',
+               mode: 'no-cors',
+               body: formData
+           })
+           .then(() => {
+               setSaveStatus('success');
+               setTimeout(() => setSaveStatus(''), 2000);
+           })
+           .catch(() => {
+               setSaveStatus('error');
+               setTimeout(() => setSaveStatus(''), 2000);
+           });
+       };
 
-      // Save progress to both Google Forms and localStorage
-       const saveProgress = (activityId, activityData, weekId, dayId, isInPerson) => {
-    if (!studentName) return;
-    setSaveStatus('saving');
-    const overallProgress = Math.round((completedActivities.size / 84) * 100);
-    const formData = new FormData();
-    formData.append('entry.115897476', studentName);
-    formData.append('entry.258074255', activityId);
-    formData.append('entry.116182678', activityData.title);
-    formData.append('entry.152007192', activityData.type);
-    formData.append('entry.126225864', 'Day ' + dayId.replace('day', ''));
-    formData.append('entry.204814648', 'Week ' + weekId.replace('week', ''));
-    formData.append('entry.847575500', overallProgress + '%');
-    fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
-        method: 'POST', mode: 'no-cors', body: formData
-    }).then(() => { setSaveStatus('success'); setTimeout(() => setSaveStatus(''), 2000); });
-};
+       // Load saved progress
+       useEffect(() => {
+           if (studentName) {
+               const saved = localStorage.getItem(`dm-progress-${studentName}`);
+               if (saved) {
+                   const data = JSON.parse(saved);
+                   setCompletedActivities(new Set(data.completedActivities));
+                   setProgressLoaded(true);
+               } else {
+                   setCompletedActivities(new Set());
+                   setProgressLoaded(true);
+               }
+           }
+       }, [studentName]);
+
+       // Toggle activity completion
+       const toggleActivity = (activityId, activityData, weekId, dayId) => {
+           const newCompleted = new Set(completedActivities);
+           if (newCompleted.has(activityId)) {
+               newCompleted.delete(activityId);
+               setCompletedActivities(newCompleted);
+               
+               // Update localStorage when unchecking
+               const progressData = {
+                   studentName: studentName,
+                   completedActivities: Array.from(newCompleted),
+                   lastUpdated: new Date().toISOString()
+               };
+               localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
+           } else {
+               // Save progress when checking
+               saveProgress(activityId, activityData, weekId, dayId);
+           }
+       };
+
+       // Toggle day expansion
+       const toggleDay = (dayKey) => {
+           const newExpanded = new Set(expandedDays);
+           if (newExpanded.has(dayKey)) {
+               newExpanded.delete(dayKey);
+           } else {
+               newExpanded.add(dayKey);
+           }
+           setExpandedDays(newExpanded);
+       };
+
+       // Activity type styling
+       const getActivityStyle = (type) => {
+           const styles = {
+               video: 'bg-blue-100 hover:bg-blue-200 border-blue-300',
+               reading: 'bg-green-100 hover:bg-green-200 border-green-300',
+               quiz: 'bg-purple-100 hover:bg-purple-200 border-purple-300',
+               audio: 'bg-yellow-100 hover:bg-yellow-200 border-yellow-300',
+               exercise: 'bg-orange-100 hover:bg-orange-200 border-orange-300',
+               practice: 'bg-red-100 hover:bg-red-200 border-red-300',
+               assessment: 'bg-pink-100 hover:bg-pink-200 border-pink-300'
+           };
+           return styles[type] || 'bg-gray-100 hover:bg-gray-200 border-gray-300';
+       };
+
+       // Get activity icon
+       const getActivityIcon = (type) => {
+           const icons = {
+               video: '🎥',
+               reading: '📖',
+               quiz: '📝',
+               audio: '🎧',
+               exercise: '✍️',
+               practice: '👥',
+               assessment: '✅'
+           };
+           return icons[type] || '📋';
+       };
+
+       return (
+           <div className="min-h-screen bg-gray-50 p-8">
+               <div className="max-w-7xl mx-auto">
+                   <h1 className="text-4xl font-bold text-center mb-8 text-gray-800">
+                       DM Teacher Training Dashboard
+                   </h1>
+
+                   {/* Save Status Notification */}
+                   {saveStatus && (
+                       <div className={`fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+                           saveStatus === 'saving' ? 'bg-yellow-100 text-yellow-800' :
+                           saveStatus === 'success' ? 'bg-green-100 text-green-800' :
+                           'bg-red-100 text-red-800'
+                       }`}>
+                           {saveStatus === 'saving' && (
+                               <div className="flex items-center">
+                                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-800 mr-2"></div>
+                                   Saving...
+                               </div>
+                           )}
+                           {saveStatus === 'success' && '✅ Saved successfully!'}
+                           {saveStatus === 'error' && '❌ Save failed'}
+                       </div>
+                   )}
+
+                   {/* Student Name Input */}
+                   <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                       <label className="block text-lg font-semibold mb-2">
+                           Enter Your Name:
+                       </label>
+                       <input
+                           type="text"
+                           value={studentName}
+                           onChange={(e) => setStudentName(e.target.value)}
+                           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Your full name"
+                       />
+                   </div>
+
+                   {/* Progress Overview */}
+                   {studentName && progressLoaded && (
+                       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                           <h2 className="text-2xl font-bold mb-4">Progress Overview</h2>
+                           <div className="mb-4">
+                               <div className="flex justify-between mb-2">
+                                   <span>Overall Progress</span>
+                                   <span>{completedCount} / {totalActivities} activities</span>
+                               </div>
+                               <div className="w-full bg-gray-200 rounded-full h-4">
+                                   <div 
+                                       className="bg-green-500 h-4 rounded-full transition-all duration-500"
+                                       style={{ width: `${overallProgress}%` }}
+                                   ></div>
+                               </div>
+                               <div className="text-center mt-2 text-lg font-semibold">
+                                   {overallProgress}% Complete
+                               </div>
+                           </div>
+                       </div>
+                   )}
+
+                   {/* Curriculum */}
+                   {studentName && progressLoaded && (
+                       <div className="space-y-8">
+                           {Object.entries(curriculumData).map(([weekKey, week]) => (
+                               <div key={weekKey} className="bg-white rounded-lg shadow-md overflow-hidden">
+                                   <h2 className="text-2xl font-bold p-6 bg-blue-600 text-white">
+                                       {week.title}
+                                   </h2>
+                                   <div className="p-6">
+                                       {Object.entries(week.days).map(([dayKey, day]) => (
+                                           <div key={dayKey} className="mb-6 last:mb-0">
+                                               <div 
+                                                   className="flex justify-between items-center cursor-pointer bg-gray-100 p-4 rounded-lg hover:bg-gray-200 transition-colors"
+                                                   onClick={() => toggleDay(dayKey)}
+                                               >
+                                                   <h3 className="text-xl font-semibold">{day.title}</h3>
+                                                   <div className="flex items-center">
+                                                       <span className="text-sm text-gray-600 mr-4">
+                                                           Online: {day.onlineTime}
+                                                       </span>
+                                                       <span className="text-2xl">
+                                                           {expandedDays.has(dayKey) ? '−' : '+'}
+                                                       </span>
+                                                   </div>
+                                               </div>
+
+                                               {expandedDays.has(dayKey) && (
+                                                   <div className="mt-4 space-y-4">
+                                                       {/* Online Activities */}
+                                                       <div>
+                                                           <h4 className="font-semibold text-lg mb-2 text-blue-700">
+                                                               🖥️ Online Activities ({day.onlineActivities.length})
+                                                           </h4>
+                                                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                               {day.onlineActivities.map((activity, index) => {
+                                                                   const activityId = generateActivityId(weekKey, dayKey, index, false);
+                                                                   const isCompleted = completedActivities.has(activityId);
+                                                                   return (
+                                                                       <div
+                                                                           key={activityId}
+                                                                           onClick={() => toggleActivity(activityId, activity, weekKey, dayKey)}
+                                                                           className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                                                                               isCompleted 
+                                                                                   ? 'bg-green-100 border-green-400' 
+                                                                                   : getActivityStyle(activity.type)
+                                                                           }`}
+                                                                       >
+                                                                           <div className="flex items-start">
+                                                                               <span className="text-2xl mr-3">
+                                                                                   {getActivityIcon(activity.type)}
+                                                                               </span>
+                                                                               <div className="flex-1">
+                                                                                   <div className="font-medium">
+                                                                                       {activity.title}
+                                                                                   </div>
+                                                                                   {activity.duration && (
+                                                                                       <div className="text-sm text-gray-600">
+                                                                                           Duration: {activity.duration}
+                                                                                       </div>
+                                                                                   )}
+                                                                                   <div className="text-xs text-gray-500 mt-1">
+                                                                                       ID: {activityId}
+                                                                                   </div>
+                                                                               </div>
+                                                                               {isCompleted && (
+                                                                                   <span className="text-green-600 text-xl">✓</span>
+                                                                               )}
+                                                                           </div>
+                                                                       </div>
+                                                                   );
+                                                               })}
+                                                           </div>
+                                                       </div>
+
+                                                       {/* In-Person Activities */}
+                                                       <div>
+                                                           <h4 className="font-semibold text-lg mb-2 text-green-700">
+                                                               👥 In-Person Activities ({day.inPersonActivities.length})
+                                                           </h4>
+                                                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                               {day.inPersonActivities.map((activity, index) => {
+                                                                   const activityId = generateActivityId(weekKey, dayKey, index, true);
+                                                                   const isCompleted = completedActivities.has(activityId);
+                                                                   return (
+                                                                       <div
+                                                                           key={activityId}
+                                                                           onClick={() => toggleActivity(activityId, activity, weekKey, dayKey)}
+                                                                           className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                                                                               isCompleted 
+                                                                                   ? 'bg-green-100 border-green-400' 
+                                                                                   : getActivityStyle(activity.type)
+                                                                           }`}
+                                                                       >
+                                                                           <div className="flex items-start">
+                                                                               <span className="text-2xl mr-3">
+                                                                                   {getActivityIcon(activity.type)}
+                                                                               </span>
+                                                                               <div className="flex-1">
+                                                                                   <div className="font-medium">
+                                                                                       {activity.title}
+                                                                                   </div>
+                                                                                   <div className="text-xs text-gray-500 mt-1">
+                                                                                       ID: {activityId}
+                                                                                   </div>
+                                                                               </div>
+                                                                               {isCompleted && (
+                                                                                   <span className="text-green-600 text-xl">✓</span>
+                                                                               )}
+                                                                           </div>
+                                                                       </div>
+                                                                   );
+                                                               })}
+                                                           </div>
+                                                       </div>
+                                                   </div>
+                                               )}
+                                           </div>
+                                       ))}
+                                   </div>
+                               </div>
+                           ))}
+                       </div>
+                   )}
+               </div>
+           </div>
+       );
+   };
+
+   // Render the app
+   ReactDOM.render(<DashboardApp />, document.getElementById('root'));
+</script>
+
+</body>
+</html>
