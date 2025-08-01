@@ -3,457 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DM Teacher Dashboard</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <title>DM Teacher Training Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .completed { background-color: #d4edda !important; border-color: #c3e6cb !important; }
-        .activity-item { transition: all 0.3s ease; cursor: pointer; }
-        .activity-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .progress-bar { background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%); transition: width 0.5s ease; }
-        .save-status { position: fixed; top: 20px; right: 20px; z-index: 1000; padding: 12px 24px; border-radius: 8px; font-weight: 600; }
-        .save-status.saving { background: #fbbf24; color: #92400e; }
-        .save-status.success { background: #34d399; color: #065f46; }
-        .save-status.error { background: #f87171; color: #991b1b; }
-        .week-header { cursor: pointer; user-select: none; }
-        .week-content { transition: max-height 0.3s ease, opacity 0.3s ease; overflow: hidden; }
-        .week-collapsed { max-height: 0; opacity: 0; }
-        .week-expanded { max-height: 2000px; opacity: 1; }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+<div id="root"></div>
 
-        // Activity data structure
-        const activities = {
-            week1: {
-                title: "Week 1: Foundation & Setup",
-                collapsed: false,
-                days: {
-                    day1: {
-                        title: "Day 1: Getting Started",
-                        activities: {
-                            "W1D1A1O": { title: "Watch Overview Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D1A2R": { title: "Read Getting Started Guide", type: "reading", link: "[READING_LINK]" },
-                            "W1D1A3Q": { title: "Complete Setup Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W1D1A4P": { title: "Practice Exercise 1", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W1D1A5A": { title: "Submit Assignment 1", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W1D1A6O": { title: "Watch Supplementary Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D1A7R": { title: "Review Materials", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day2: {
-                        title: "Day 2: Basic Concepts",
-                        activities: {
-                            "W1D2A1O": { title: "Morning Briefing Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D2A2R": { title: "Core Concepts Reading", type: "reading", link: "[READING_LINK]" },
-                            "W1D2A3Q": { title: "Knowledge Check Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W1D2A4P": { title: "Hands-on Practice", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W1D2A5A": { title: "Daily Assignment", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W1D2A6O": { title: "Review Session Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D2A7R": { title: "Additional Resources", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day3: {
-                        title: "Day 3: Application",
-                        activities: {
-                            "W1D3A1O": { title: "Application Demo Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D3A2R": { title: "Best Practices Guide", type: "reading", link: "[READING_LINK]" },
-                            "W1D3A3Q": { title: "Application Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W1D3A4P": { title: "Real-world Practice", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W1D3A5A": { title: "Project Assignment", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W1D3A6O": { title: "Expert Interview Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D3A7R": { title: "Case Study Reading", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day4: {
-                        title: "Day 4: Advanced Topics",
-                        activities: {
-                            "W1D4A1O": { title: "Advanced Concepts Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D4A2R": { title: "Technical Documentation", type: "reading", link: "[READING_LINK]" },
-                            "W1D4A3Q": { title: "Advanced Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W1D4A4P": { title: "Complex Practice Exercise", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W1D4A5A": { title: "Advanced Assignment", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W1D4A6O": { title: "Troubleshooting Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W1D4A7R": { title: "Reference Materials", type: "reading", link: "[READING_LINK]" }
-                        }
-                    }
-                }
-            },
-            week2: {
-                title: "Week 2: Skill Development",
-                collapsed: false,
-                days: {
-                    day1: {
-                        title: "Day 1: Building Skills",
-                        activities: {
-                            "W2D1A1O": { title: "Skill Development Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D1A2R": { title: "Methodology Reading", type: "reading", link: "[READING_LINK]" },
-                            "W2D1A3Q": { title: "Skills Assessment Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W2D1A4P": { title: "Skill Practice Session", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W2D1A5A": { title: "Skill Demonstration", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W2D1A6O": { title: "Peer Learning Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D1A7R": { title: "Strategy Guide", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day2: {
-                        title: "Day 2: Practical Application",
-                        activities: {
-                            "W2D2A1O": { title: "Practical Demo Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D2A2R": { title: "Implementation Guide", type: "reading", link: "[READING_LINK]" },
-                            "W2D2A3Q": { title: "Implementation Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W2D2A4P": { title: "Guided Practice", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W2D2A5A": { title: "Implementation Project", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W2D2A6O": { title: "Success Stories Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D2A7R": { title: "Common Pitfalls Guide", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day3: {
-                        title: "Day 3: Refinement",
-                        activities: {
-                            "W2D3A1O": { title: "Refinement Techniques Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D3A2R": { title: "Quality Standards Reading", type: "reading", link: "[READING_LINK]" },
-                            "W2D3A3Q": { title: "Quality Check Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W2D3A4P": { title: "Refinement Practice", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W2D3A5A": { title: "Quality Improvement Task", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W2D3A6O": { title: "Expert Tips Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D3A7R": { title: "Advanced Techniques", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day4: {
-                        title: "Day 4: Mastery Check",
-                        activities: {
-                            "W2D4A1O": { title: "Mastery Overview Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D4A2R": { title: "Mastery Criteria Reading", type: "reading", link: "[READING_LINK]" },
-                            "W2D4A3Q": { title: "Comprehensive Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W2D4A4P": { title: "Mastery Challenge", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W2D4A5A": { title: "Portfolio Submission", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W2D4A6O": { title: "Reflection Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W2D4A7R": { title: "Next Steps Guide", type: "reading", link: "[READING_LINK]" }
-                        }
-                    }
-                }
-            },
-            week3: {
-                title: "Week 3: Integration & Assessment",
-                collapsed: false,
-                days: {
-                    day1: {
-                        title: "Day 1: Integration",
-                        activities: {
-                            "W3D1A1O": { title: "Integration Overview Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D1A2R": { title: "Integration Framework", type: "reading", link: "[READING_LINK]" },
-                            "W3D1A3Q": { title: "Integration Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W3D1A4P": { title: "Integration Exercise", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W3D1A5A": { title: "Integration Project", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W3D1A6O": { title: "Case Study Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D1A7R": { title: "Integration Examples", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day2: {
-                        title: "Day 2: Assessment Preparation",
-                        activities: {
-                            "W3D2A1O": { title: "Assessment Prep Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D2A2R": { title: "Assessment Guidelines", type: "reading", link: "[READING_LINK]" },
-                            "W3D2A3Q": { title: "Practice Assessment", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W3D2A4P": { title: "Mock Assessment", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W3D2A5A": { title: "Pre-Assessment Task", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W3D2A6O": { title: "Study Tips Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D2A7R": { title: "Review Materials", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day3: {
-                        title: "Day 3: Final Assessment",
-                        activities: {
-                            "W3D3A1O": { title: "Assessment Instructions Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D3A2R": { title: "Final Assessment Brief", type: "reading", link: "[READING_LINK]" },
-                            "W3D3A3Q": { title: "Final Assessment Quiz", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W3D3A4P": { title: "Practical Assessment", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W3D3A5A": { title: "Capstone Project", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W3D3A6O": { title: "Submission Guide Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D3A7R": { title: "Assessment Rubric", type: "reading", link: "[READING_LINK]" }
-                        }
-                    },
-                    day4: {
-                        title: "Day 4: Completion & Next Steps",
-                        activities: {
-                            "W3D4A1O": { title: "Completion Ceremony Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D4A2R": { title: "Certificate Information", type: "reading", link: "[READING_LINK]" },
-                            "W3D4A3Q": { title: "Feedback Survey", type: "quiz", link: "[QUIZ_LINK]" },
-                            "W3D4A4P": { title: "Final Practice Session", type: "practice", link: "[PRACTICE_LINK]" },
-                            "W3D4A5A": { title: "Course Evaluation", type: "assignment", link: "[ASSIGNMENT_LINK]" },
-                            "W3D4A6O": { title: "Next Steps Video", type: "video", link: "[VIDEO_LINK]" },
-                            "W3D4A7R": { title: "Continued Learning Resources", type: "reading", link: "[READING_LINK]" }
-                        }
-                    }
+<script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // CURRICULUM DATA - ONLINE AND IN-PERSON ACTIVITIES SEPARATED
+    const curriculumData = {
+        week1: {
+            title: "WEEK 1: FOUNDATION & CORE UNITS",
+            days: {
+                day1: {
+                    title: "Day 1: Program Introduction & DM Overview",
+                    onlineTime: "2-3 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Welcome to DM Teacher Training", duration: "15 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Direct Method Philosophy & Principles", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Lesson Structure Overview", link: "[REPLACE_WITH_LINK]" },
+                        { type: "quiz", title: "Lesson Structure Overview Quiz", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Teacher's Handbook Pages 1-30", link: "[REPLACE_WITH_LINK]" },
+                        { type: "audio", title: "Question & Answer Work Methodology", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "quiz", title: "Direct Method Fundamentals (25 questions)", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Q&A Methodology Live Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Fast Reading Introduction Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Individual Baseline Assessment", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Recording Assignment: 2-minute self-introduction", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day2: {
+                    title: "Day 2: Fast Reading Mastery & Unit 1",
+                    onlineTime: "3-4 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Fast Reading Masterclass - 240 words/minute", duration: "45 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Double-Reading Technique (120-word paragraphs)", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Unit 1 Complete Demonstration", duration: "40 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Possessive Adjectives Methodology", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "audio", title: "Fast Reading Practice - Units 1-5", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Interactive Timer: Fast Reading Practice Tool", link: "[REPLACE_WITH_LINK]" },
+                        { type: "quiz", title: "Unit 1 Vocabulary & Structures (30 questions)", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "assessment", title: "Fast Reading Speed Assessment", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Unit 1 Teaching Practice Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Error Correction Techniques Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Video Submission: Record 120-word paragraph", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Teaching Demo: 5-minute Unit 1 practice", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day3: {
+                    title: "Day 3: Unit 2 & Verb To Be Mastery",
+                    onlineTime: "3 hours",
+                    onlineActivities: [
+                        { type: "video", title: "This is a man/woman Complete Methodology", duration: "25 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Verb To Be Transformations", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Short Forms Teaching Sequence", duration: "15 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Unit 2 Teaching Notes", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Drag-and-Drop: Build Unit 2 Question Sequences", link: "[REPLACE_WITH_LINK]" },
+                        { type: "audio", title: "Audio Matching: Correct vs Incorrect Responses", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Unit 2 Live Presentations", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Short Forms Mastery Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Peer Error Correction Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Timing Exercise: Practice Proper Pacing", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Create: Your own Unit 2 question sequence", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day4: {
+                    title: "Day 4: Unit 3 & Cultural Integration",
+                    onlineTime: "2.5 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Angola Context Integration", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Countries & Nationalities Pronunciation", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Natural vs Forced Cultural References", duration: "15 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Interactive Map: Geography Vocabulary Tool", link: "[REPLACE_WITH_LINK]" },
+                        { type: "quiz", title: "Countries & Nationalities (40 items)", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Unit 3 Live Teaching Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Cultural Integration Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Geography Vocabulary Peer Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "audio", title: "Audio Submission: Record countries/nationalities", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day5: {
+                    title: "Day 5: Units 4-5 & Object Identification",
+                    onlineTime: "4 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Unit 4 What is this? Methodology", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Unit 5 Plural Forms (we/you/they)", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Object Teaching - 15 Items", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Negative Forms Practice", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Interactive Flashcards: Classroom Objects", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Sequence Builder: Question Order Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Week 1 Review Compilation", duration: "60 min", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Units 4-5 Teaching Marathon", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Speed Assessment Challenge", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Endurance Building Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Grammar Drills: Singular to Plural", link: "[REPLACE_WITH_LINK]" },
+                        { type: "quiz", title: "Self-Assessment: Week 1 Progress Check", link: "[REPLACE_WITH_LINK]" }
+                    ]
                 }
             }
-        };
-
-        // Activity type icons and colors
-        const activityConfig = {
-            video: { icon: "🎥", color: "bg-blue-100 border-blue-300 text-blue-800", hoverColor: "hover:bg-blue-200" },
-            reading: { icon: "📖", color: "bg-green-100 border-green-300 text-green-800", hoverColor: "hover:bg-green-200" },
-            quiz: { icon: "📝", color: "bg-purple-100 border-purple-300 text-purple-800", hoverColor: "hover:bg-purple-200" },
-            practice: { icon: "🛠️", color: "bg-orange-100 border-orange-300 text-orange-800", hoverColor: "hover:bg-orange-200" },
-            assignment: { icon: "📋", color: "bg-red-100 border-red-300 text-red-800", hoverColor: "hover:bg-red-200" }
-        };
-
-        function DashboardApp() {
-            const [studentName, setStudentName] = useState('');
-            const [completedActivities, setCompletedActivities] = useState(new Set());
-            const [progressLoaded, setProgressLoaded] = useState(false);
-            const [saveStatus, setSaveStatus] = useState('');
-
-            // Load progress on component mount and when name changes
-            useEffect(() => {
-                if (studentName.trim()) {
-                    loadProgress(studentName.trim());
+        },
+        week2: {
+            title: "WEEK 2: ADVANCED SKILLS & TEACHING TECHNIQUES",
+            days: {
+                day6: {
+                    title: "Day 6: Reading Methodology",
+                    onlineTime: "3 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Two Reading Approaches Explained", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Style 1 - Question/Answer Rotation", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Style 2 - Extended Reading Blocks", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Decision Matrix - When to Use Each", duration: "15 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Reading Texts Units 1-5", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Reading Style 1 Practice Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Reading Style 2 Practice Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Choose Appropriate Style Assessment", link: "[REPLACE_WITH_LINK]" },
+                        { type: "audio", title: "Both Reading Styles Demonstrated", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day7: {
+                    title: "Day 7: Alphabet & Pronunciation Intensive",
+                    onlineTime: "3.5 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Alphabet Teaching Methodology", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Segment Practice (A-F, G-L, M-R, S-Z)", duration: "40 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Common Portuguese Speaker Errors", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Phonetic Chart Introduction", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Phonetic Matching Games", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Alphabet Teaching Live Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "30-Second Alphabet Recitation Goal", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Phonetic Chart Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Recording Tool: Submit Perfect Alphabet", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day8: {
+                    title: "Day 8: Numbers Mastery",
+                    onlineTime: "3 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Complete Numbers Methodology", duration: "40 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Critical /ti:n/ vs /ti/ Distinction", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Advanced Numbers (hundreds to millions)", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Interactive Counting Exercises", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Random Number Generator Practice", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Numbers 1-100 Live Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Advanced Numbers Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Rapid-Fire Numbers Testing", link: "[REPLACE_WITH_LINK]" },
+                        { type: "audio", title: "Audio Quiz: Number Recognition", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day9: {
+                    title: "Day 9: Oral Skills & Communication",
+                    onlineTime: "2.5 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Oral Skills Procedures", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Student Engagement Techniques", duration: "25 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Natural Communication Flow", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Activities Booklet", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Review: Activities Booklet Online", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Oral Skills Implementation", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Communication Activities Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Live Conversation Simulation", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Practice: Communication Scenarios", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day10: {
+                    title: "Day 10: Mid-Program Comprehensive Review",
+                    onlineTime: "4 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Week 1 Key Points Compilation", duration: "60 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "quiz", title: "Self-Assessment: Units 1-5 Mastery Check", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Weak Points Identification Tool", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Create: Complete Lesson Plan (any unit 1-5)", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "assessment", title: "Comprehensive Skills Assessment", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Individual Support Planning", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Goal Setting Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Record: 10-minute Teaching Demonstration", link: "[REPLACE_WITH_LINK]" }
+                    ]
                 }
-            }, [studentName]);
-
-            // Load saved progress from localStorage
-            const loadProgress = (name) => {
-                try {
-                    const saved = localStorage.getItem(`dm-progress-${name}`);
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        setCompletedActivities(new Set(data.completedActivities));
-                        console.log('Progress loaded for', name, ':', data.completedActivities.length, 'activities');
-                    }
-                } catch (error) {
-                    console.error('Error loading progress:', error);
+            }
+        },
+        week3: {
+            title: "WEEK 3++: GRAMMAR, SPECIAL LESSONS & CERTIFICATION",
+            days: {
+                day11: {
+                    title: "Day 11: Grammar Lesson 1",
+                    onlineTime: "3 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Grammar Lesson 1 Structure", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Exercise Management Techniques", duration: "25 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Making Grammar Interactive", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Complete Grammar 1 Script", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Student Error Examples", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Grammar Lesson 1 Live Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Exercise Supervision Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Interactive Grammar Methods", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Online Grammar Exercises", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day12: {
+                    title: "Day 12: Grammar Lesson 2",
+                    onlineTime: "3 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Grammar Lesson 2 Procedures", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Complex Structure Teaching", duration: "25 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Student Participation Management", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Error Correction Scenarios", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Grammar Lesson 2 Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Combined Grammar 1&2 Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Grammar Teaching Assessment", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Timing Practice Tools", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day13: {
+                    title: "Day 13: Dictation Procedures",
+                    onlineTime: "2.5 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Complete Dictation Methodology", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Pace and Pronunciation Standards", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Dictation Correction Techniques", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "audio", title: "Sample Dictations (various speeds)", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Evaluation Rubric Study Guide", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Dictation Practice All Levels", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Peer Dictation Exercises", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Individual Dictation Assessment", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Self-Recording: Practice Dictation Delivery", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day14: {
+                    title: "Day 14: Special Lessons (Body Parts & Time)",
+                    onlineTime: "3.5 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Body Parts Teaching Sequence", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Time Telling Methodology", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Visual Aids and Gestures", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Digital Flashcards: Body Parts", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Clock Practice Tool", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Body Parts Live Lesson", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Time Telling Practice", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Creative Teaching Methods Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Lesson Sequencing Exercises", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day15: {
+                    title: "Day 15: Phonetic Chart Mastery",
+                    onlineTime: "3 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Complete Phonetic Chart", duration: "40 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Vowel Sounds Detailed", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Consonant Sounds Detailed", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Symbol to Sound Connections", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Interactive Phonetic Chart", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Phonetic Chart Teaching", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Sound Production Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Error Correction for Sounds", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Sound Recording Exercises", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day16: {
+                    title: "Day 16: Classroom Activities & Management",
+                    onlineTime: "2.5 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Activities Booklet Overview", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Classroom Management for DM", duration: "25 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Energy and Engagement Maintenance", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Digital Activities Booklet", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Best Practices Compilation", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Activities Practice Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Classroom Management Scenarios", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Energy Maintenance Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Management Scenario Videos", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day17: {
+                    title: "Day 17: Comprehensive Review & Practice",
+                    onlineTime: "4 hours",
+                    onlineActivities: [
+                        { type: "video", title: "All Methodologies Review", duration: "60 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Common Mistakes Compilation", duration: "30 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "video", title: "Success Strategies", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "quiz", title: "Complete Program Quiz (100 questions)", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Final Lesson Plan Preparation", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "practice", title: "Mock Teaching Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Peer Assessment Workshop", link: "[REPLACE_WITH_LINK]" },
+                        { type: "practice", title: "Final Coaching Session", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Teaching Philosophy Statement", link: "[REPLACE_WITH_LINK]" }
+                    ]
+                },
+                day18: {
+                    title: "Day 18: Final Assessment & Certification",
+                    onlineTime: "2 hours",
+                    onlineActivities: [
+                        { type: "video", title: "Confidence Building", duration: "20 min", link: "[REPLACE_WITH_LINK]" },
+                        { type: "reading", title: "Assessment Criteria Review", duration: "15 min", link: "[REPLACE_WITH_LINK]" }
+                    ],
+                    inPersonActivities: [
+                        { type: "assessment", title: "Final Teaching Assessment", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Oral Examination", link: "[REPLACE_WITH_LINK]" },
+                        { type: "assessment", title: "Certification Ceremony", link: "[REPLACE_WITH_LINK]" },
+                        { type: "exercise", title: "Submit: Final Teaching Video (20 min)", link: "[REPLACE_WITH_LINK]" }
+                    ]
                 }
-                setProgressLoaded(true);
-            };
-
-            // Save progress to both localStorage and Google Forms
-            const saveProgress = (activityId, activityData, weekId, dayId) => {
-                if (!studentName.trim()) return;
-                
-                setSaveStatus('saving');
-                
-                // Save to localStorage for persistence
-                try {
-                    const progressData = {
-                        studentName: studentName.trim(),
-                        completedActivities: Array.from(completedActivities),
-                        lastUpdated: new Date().toISOString()
-                    };
-                    localStorage.setItem(`dm-progress-${studentName.trim()}`, JSON.stringify(progressData));
-                } catch (error) {
-                    console.error('Error saving to localStorage:', error);
-                }
-
-                // Calculate overall progress
-                const totalActivities = 84; // 3 weeks × 4 days × 7 activities
-                const overallProgress = Math.round((completedActivities.size / totalActivities) * 100);
-                
-                // Submit to Google Forms
-                const formData = new FormData();
-                formData.append('entry.115897476', studentName.trim());           // Student Name
-                formData.append('entry.258074255', activityId);                   // Activity ID
-                formData.append('entry.116182678', activityData.title);           // Activity Title
-                formData.append('entry.152007192', activityData.type);            // Activity Type
-                formData.append('entry.126225864', 'Day ' + dayId.replace('day', '')); // Day
-                formData.append('entry.204814648', 'Week ' + weekId.replace('week', '')); // Week
-                formData.append('entry.847575500', overallProgress + '%');        // Overall Progress
-
-                fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                })
-                .then(() => {
-                    console.log('✅ Save successful via Google Forms!');
-                    setSaveStatus('success');
-                    setTimeout(() => setSaveStatus(''), 2000);
-                })
-                .catch(error => {
-                    console.error('❌ Save failed:', error);
-                    setSaveStatus('error');
-                    setTimeout(() => setSaveStatus(''), 3000);
-                });
-            };
-
-            // Toggle activity completion
-            const toggleActivity = (activityId, activityData, weekId, dayId) => {
-                const newCompleted = new Set(completedActivities);
-                
-                if (newCompleted.has(activityId)) {
-                    newCompleted.delete(activityId);
-                } else {
-                    newCompleted.add(activityId);
-                    // Save progress when marking as complete
-                    saveProgress(activityId, activityData, weekId, dayId);
-                }
-                
-                setCompletedActivities(newCompleted);
-            };
-
-            // Toggle week collapse
-            const toggleWeek = (weekId) => {
-                activities[weekId].collapsed = !activities[weekId].collapsed;
-                // Force re-render
-                setCompletedActivities(new Set(completedActivities));
-            };
-
-            // Calculate progress
-            const totalActivities = 84;
-            const completedCount = completedActivities.size;
-            const progressPercentage = totalActivities > 0 ? Math.round((completedCount / totalActivities) * 100) : 0;
-
-            return (
-                <div className="min-h-screen bg-gray-50 py-8">
-                    {/* Save Status Indicator */}
-                    {saveStatus && (
-                        <div className={`save-status ${saveStatus}`}>
-                            {saveStatus === 'saving' && '⏳ Saving...'}
-                            {saveStatus === 'success' && '✅ Saved successfully!'}
-                            {saveStatus === 'error' && '❌ Save failed'}
-                        </div>
-                    )}
-
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                        {/* Header */}
-                        <div className="text-center mb-8">
-                            <h1 className="text-4xl font-bold text-gray-900 mb-4">DM Teacher Dashboard</h1>
-                            <p className="text-lg text-gray-600">Track your progress through the Direct Method course</p>
-                        </div>
-
-                        {/* Student Name Input */}
-                        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                            <label htmlFor="studentName" className="block text-sm font-medium text-gray-700 mb-2">
-                                Student Name
-                            </label>
-                            <input
-                                type="text"
-                                id="studentName"
-                                value={studentName}
-                                onChange={(e) => setStudentName(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Enter your name to track progress"
-                            />
-                        </div>
-
-                        {/* Progress Bar */}
-                        {studentName && progressLoaded && (
-                            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h2 className="text-lg font-semibold text-gray-800">Overall Progress</h2>
-                                    <span className="text-sm font-medium text-gray-600">
-                                        {completedCount} of {totalActivities} activities completed
-                                    </span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-4">
-                                    <div 
-                                        className="progress-bar h-4 rounded-full" 
-                                        style={{ width: `${progressPercentage}%` }}
-                                    ></div>
-                                </div>
-                                <div className="text-center mt-2">
-                                    <span className="text-2xl font-bold text-gray-800">{progressPercentage}%</span>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Activities by Week */}
-                        {studentName && progressLoaded && (
-                            <div className="space-y-8">
-                                {Object.entries(activities).map(([weekId, week]) => (
-                                    <div key={weekId} className="bg-white rounded-lg shadow-md overflow-hidden">
-                                        {/* Week Header */}
-                                        <div 
-                                            className="week-header bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex justify-between items-center"
-                                            onClick={() => toggleWeek(weekId)}
-                                        >
-                                            <h2 className="text-2xl font-bold">{week.title}</h2>
-                                            <span className="text-2xl">
-                                                {week.collapsed ? '▶️' : '▼'}
-                                            </span>
-                                        </div>
-
-                                        {/* Week Content */}
-                                        <div className={`week-content ${week.collapsed ? 'week-collapsed' : 'week-expanded'}`}>
-                                            <div className="p-6">
-                                                {Object.entries(week.days).map(([dayId, day]) => (
-                                                    <div key={dayId} className="mb-8 last:mb-0">
-                                                        <h3 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                                                            {day.title}
-                                                        </h3>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                            {Object.entries(day.activities).map(([activityId, activity]) => {
-                                                                const isCompleted = completedActivities.has(activityId);
-                                                                const config = activityConfig[activity.type];
-                                                                
-                                                                return (
-                                                                    <div
-                                                                        key={activityId}
-                                                                        className={`activity-item p-4 rounded-lg border-2 transition-all duration-200 ${
-                                                                            isCompleted 
-                                                                                ? 'completed border-green-500 bg-green-50' 
-                                                                                : `${config.color} ${config.hoverColor} border-2`
-                                                                        }`}
-                                                                        onClick={() => toggleActivity(activityId, activityData, weekId, dayId)}
-                                                                    >
-                                                                        <div className="flex items-start justify-between">
-                                                                            <div className="flex-1">
-                                                                                <div className="flex items-center mb-2">
-                                                                                    <span className="text-2xl mr-2">{config.icon}</span>
-                                                                                    <span className="text-xs uppercase font-semibold tracking-wide">
-                                                                                        {activity.type}
-                                                                                    </span>
-                                                                                </div>
-                                                                                <h4 className="font-medium text-gray-900 mb-1">
-                                                                                    {activity.title}
-                                                                                </h4>
-                                                                                <p className="text-xs text-gray-600">
-                                                                                    ID: {activityId}
-                                                                                </p>
-                                                                            </div>
-                                                                            <div className="ml-2">
-                                                                                {isCompleted ? (
-                                                                                    <span className="text-green-600 text-xl">✅</span>
-                                                                                ) : (
-                                                                                    <span className="text-gray-400 text-xl">⭕</span>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Instructions */}
-                        {!studentName && (
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                                <h3 className="text-lg font-semibold text-blue-900 mb-2">Getting Started</h3>
-                                <p className="text-blue-800">
-                                    Enter your name above to begin tracking your progress through the Direct Method course. 
-                                    Your progress will be automatically saved and submitted to track your learning journey.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
+            }
         }
+    };
 
-        // Render the app
-        ReactDOM.render(<DashboardApp />, document.getElementById('root'));
-    </script>
-</body>
-</html>
+    const DashboardApp = () => {
+        const [studentName, setStudentName] = useState('');
+        const [completedActivities, setCompletedActivities] = useState(new Set());
+        const [expandedDays, setExpandedDays] = useState(new Set());
+        const [saveStatus, setSaveStatus] = useState('');
+        const [progressLoaded, setProgressLoaded] = useState(false);
+
+        // Calculate progress
+        const totalActivities = Object.values(curriculumData).reduce((total, week) => 
+            total + Object.values(week.days).reduce((dayTotal, day) => 
+                dayTotal + day.onlineActivities.length + day.inPersonActivities.length, 0), 0
+        );
+        const completedCount = completedActivities.size;
+        const overallProgress = Math.round((completedCount / totalActivities) * 100);
+
+        // Generate activity ID
+const generateActivityId = (weekKey, dayKey, activityIndex, isInPerson) => {
+    const weekNum = weekKey.replace('week', '');
+    const dayNum = dayKey.replace('day', '');
+    const activityNum = activityIndex + 1;
+    const type = isInPerson ? 'P' : 'O';
+    return `W${weekNum}D${dayNum}A${activityNum}${type}`;
+};
+
+// Save progress to both Google Forms and localStorage
+const saveProgress = (activityId, activityData, weekId, dayId) => {
+    if (!studentName) return;
+    setSaveStatus('saving');
+    
+    // Save to localStorage
+    const newCompleted = new Set(completedActivities);
+    newCompleted.add(activityId);
+    setCompletedActivities(newCompleted);
+    
+    const progressData = {
+        studentName: studentName,
+        completedActivities: Array.from(newCompleted),
+        lastUpdated: new Date().toISOString()
+    };
+    localStorage.setItem(`dm-progress-${studentName}`, JSON.stringify(progressData));
+    
+    // Submit to Google Forms
+    const formData = new FormData();
+    formData.append('entry.115897476', studentName);
+    formData.append('entry.258074255', activityId);
+    formData.append('entry.116182678', activityData.title);
+    formData.append('entry.152007192', activityData.type);
+    formData.append('entry.126225864', dayId.replace('day', 'Day '));
+    formData.append('entry.204814648', weekId.replace('week', 'Week '));
+    formData.append('entry.847575500', overallProgress + '%');
+    
+    fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+    })
+    .then(() => {
+        setSaveStatus('success');
+        setTimeout(() => setSaveStatus(''), 2000);
+    })
+    .catch(() => {
+        setSaveStatus('error');
+        setTimeout(() => setSaveStatus(''), 2000);
+    });
+};
+
+      // Save progress to both Google Forms and localStorage
+       const saveProgress = (activityId, activityData, weekId, dayId, isInPerson) => {
+    if (!studentName) return;
+    setSaveStatus('saving');
+    const overallProgress = Math.round((completedActivities.size / 84) * 100);
+    const formData = new FormData();
+    formData.append('entry.115897476', studentName);
+    formData.append('entry.258074255', activityId);
+    formData.append('entry.116182678', activityData.title);
+    formData.append('entry.152007192', activityData.type);
+    formData.append('entry.126225864', 'Day ' + dayId.replace('day', ''));
+    formData.append('entry.204814648', 'Week ' + weekId.replace('week', ''));
+    formData.append('entry.847575500', overallProgress + '%');
+    fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
+        method: 'POST', mode: 'no-cors', body: formData
+    }).then(() => { setSaveStatus('success'); setTimeout(() => setSaveStatus(''), 2000); });
+};
