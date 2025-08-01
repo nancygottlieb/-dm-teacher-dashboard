@@ -403,7 +403,15 @@
             formData.append('entry.126225864', dayId.replace('day', 'Day '));
             formData.append('entry.204814648', weekId.replace('week', 'Week '));
             formData.append('entry.847575500', currentProgress + '%');
-            
+            console.log('Sending to form:', {
+    studentName: studentName,
+    activityId: activityId,
+    title: activityData.title,
+    type: activityData.type,
+    day: dayId.replace('day', 'Day '),
+    week: weekId.replace('week', 'Week '),
+    progress: currentProgress + '%'
+});
             fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
                method: 'POST',
                mode: 'no-cors',
