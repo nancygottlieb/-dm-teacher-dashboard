@@ -69,7 +69,7 @@ const DashboardApp = () => {
         formData.append('week', weekId.replace('week', 'Week '));
         formData.append('progress', currentProgress + '%');
 
-        fetch('https://script.google.com/macros/s/AKfycbyIQ5ZSchlTK-CtMmgrykgkU5DGI0CanwRHc9ODkoYWEyuCOV6VmYQ_M06HSRGYmFMcRQ/exec', {
+        fetch('https://script.google.com/macros/s/AKfycbzlFiJ90niY8Jwy4D1dSSVRGRjT3KqnyGklw4ZjAO1tZZzWJdyNCN_iHz3w_pZRr/exec', {
             method: 'POST',
             mode: 'no-cors',
             body: formData
