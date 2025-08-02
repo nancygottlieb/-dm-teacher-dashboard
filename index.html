@@ -412,19 +412,29 @@
     week: weekId.replace('week', 'Week '),
     progress: currentProgress + '%'
 });
-           fetch('https://script.google.com/macros/s/AKfycbyIQ5ZSchlTK-CtMmgrykgkU5DGI0CanwRHc9ODkoYWEyuCOV6VmYQ_M06HSRGYmFMcRQ/exec', {
+           const formData = new FormData();
+formData.append('studentName', studentName);
+formData.append('activityId', activityId);
+formData.append('title', activityData.title);
+formData.append('type', activityData.type);
+formData.append('day', dayId.replace('day', 'Day '));
+formData.append('week', weekId.replace('week', 'Week '));
+formData.append('progress', currentProgress + '%');
+
+fetch('https://script.google.com/macros/s/AKfycbyIQ5ZSchlTK-CtMmgrykgkU5DGI0CanwRHc9ODkoYWEyuCOV6VmYQ_M06HSRGYmFMcRQ/exec', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        studentName: studentName,
-        activityId: activityId,
-        title: activityData.title,
-        type: activityData.type,
-        day: dayId.replace('day', 'Day '),
-        week: weekId.replace('week', 'Week '),
-        progress: currentProgress + '%'
-    })
+    mode: 'no-cors',
+    body: formData
 })
+.then(() => {
+    setSaveStatus('success');
+    setTimeout(() => setSaveStatus(''), 2000);
+})
+.catch(() => {
+    setSaveStatus('error');
+    setTimeout(() => setSaveStatus(''), 2000);
+});
+
 
            .then(() => {
                setSaveStatus('success');
