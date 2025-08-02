@@ -412,11 +412,20 @@
     week: weekId.replace('week', 'Week '),
     progress: currentProgress + '%'
 });
-            fetch('https://docs.google.com/forms/d/e/1FAIpQLSesyqxfIPz5WAPV6HsPNKOfbUSH671bFE_1mI0fjGu1pjKkIA/formResponse', {
-               method: 'POST',
-               mode: 'no-cors',
-               body: formData
-           })
+           fetch('https://script.google.com/macros/s/AKfycbyIQ5ZSchlTK-CtMmgrykgkU5DGI0CanwRHc9ODkoYWEyuCOV6VmYQ_M06HSRGYmFMcRQ/exec', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        studentName: studentName,
+        activityId: activityId,
+        title: activityData.title,
+        type: activityData.type,
+        day: dayId.replace('day', 'Day '),
+        week: weekId.replace('week', 'Week '),
+        progress: currentProgress + '%'
+    })
+})
+
            .then(() => {
                setSaveStatus('success');
                setTimeout(() => setSaveStatus(''), 2000);
