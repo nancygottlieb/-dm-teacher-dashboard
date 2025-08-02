@@ -375,7 +375,8 @@
         };
 
         // Save progress to both Google Forms and localStorage
-        const  = (activityId, activityData, weekId, dayId) => {
+       const saveProgress = (activityId, activityData, weekId, dayId) => {
+
             if (!studentName) return;
             setSaveStatus('saving');
             
