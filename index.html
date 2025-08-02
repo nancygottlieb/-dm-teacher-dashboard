@@ -18,12 +18,29 @@
 <script type="text/babel">
 const { useState, useEffect } = React;
 
+const curriculumData = {
+    week1: {
+        title: "WEEK 1",
+        days: {
+            day1: {
+                title: "Day 1",
+                activities: [
+                    { id: "W1D1A1O", title: "Intro Video", type: "video" },
+                    { id: "W1D1A2O", title: "Reading 1", type: "reading" },
+                    { id: "W1D1A3O", title: "Quiz 1", type: "quiz" }
+                ]
+            }
+        }
+    }
+};
+
 const DashboardApp = () => {
     const [studentName, setStudentName] = useState('');
     const [completedActivities, setCompletedActivities] = useState(new Set());
     const [saveStatus, setSaveStatus] = useState('');
 
-    const totalActivities = 100;
+    const totalActivities = Object.values(curriculumData).reduce((sum, week) =>
+        sum + Object.values(week.days).reduce((daySum, day) => daySum + day.activities.length, 0), 0);
     const overallProgress = Math.round((completedActivities.size / totalActivities) * 100);
 
     const saveProgress = (activityId, activityData, weekId, dayId) => {
@@ -68,7 +85,7 @@ const DashboardApp = () => {
     };
 
     return (
-        <div className="p-6 max-w-xl mx-auto">
+        <div className="p-6 max-w-3xl mx-auto">
             <h1 className="text-3xl font-bold mb-4">DM Dashboard</h1>
 
             {saveStatus && (
@@ -90,12 +107,43 @@ const DashboardApp = () => {
                 onChange={(e) => setStudentName(e.target.value)}
             />
 
-            <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={() => saveProgress('W1D1A1O', { title: 'Example Activity', type: 'video' }, 'week1', 'day1')}
-            >
-                Mark Sample Activity Complete
-            </button>
+            {Object.entries(curriculumData).map(([weekKey, week]) => (
+                <div key={weekKey} className="mb-6">
+                    <h2 className="text-xl font-semibold mb-2">{week.title}</h2>
+                    {Object.entries(week.days).map(([dayKey, day]) => (
+                        <div key={dayKey} className="mb-4">
+                            <h3 className="font-medium mb-1">{day.title}</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {day.activities.map((activity) => (
+                                    <button
+                                        key={activity.id}
+                                        onClick={() => saveProgress(activity.id, activity, weekKey, dayKey)}
+                                        className={`p-3 border rounded text-left hover:bg-blue-100 ${
+                                            completedActivities.has(activity.id) ? 'bg-green-100 border-green-300' : 'bg-white border-gray-300'
+                                        }`}
+                                    >
+                                        <div className="font-semibold">{activity.title}</div>
+                                        <div className="text-sm text-gray-500">Type: {activity.type}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ))}
+
+            {studentName && (
+                <div className="mt-6 text-center">
+                    <div className="font-medium">Progress: {completedActivities.size} / {totalActivities}</div>
+                    <div className="w-full bg-gray-200 h-3 rounded mt-1">
+                        <div
+                            className="bg-green-500 h-3 rounded"
+                            style={{ width: `${overallProgress}%` }}
+                        ></div>
+                    </div>
+                    <div className="text-sm mt-1">{overallProgress}% complete</div>
+                </div>
+            )}
         </div>
     );
 };
