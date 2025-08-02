@@ -23,7 +23,7 @@ const DashboardApp = () => {
     const [completedActivities, setCompletedActivities] = useState(new Set());
     const [saveStatus, setSaveStatus] = useState('');
 
-    const totalActivities = 100; // adjust based on your curriculum
+    const totalActivities = 100;
     const overallProgress = Math.round((completedActivities.size / totalActivities) * 100);
 
     const saveProgress = (activityId, activityData, weekId, dayId) => {
