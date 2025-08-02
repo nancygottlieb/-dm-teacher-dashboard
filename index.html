@@ -375,7 +375,7 @@
         };
 
         // Save progress to both Google Forms and localStorage
-        const saveProgress = (activityId, activityData, weekId, dayId) => {
+        const  = (activityId, activityData, weekId, dayId) => {
             if (!studentName) return;
             setSaveStatus('saving');
             
@@ -394,24 +394,7 @@
             // Calculate overall progress for this save
             const currentProgress = Math.round((newCompleted.size / totalActivities) * 100);
             
-            // Submit to Google Forms
-            const formData = new FormData();
-            formData.append('entry.115897476', studentName);
-            formData.append('entry.258074255', activityId);
-            formData.append('entry.116182678', activityData.title);
-            formData.append('entry.152007192', activityData.type);
-            formData.append('entry.126225864', dayId.replace('day', 'Day '));
-            formData.append('entry.204814648', weekId.replace('week', 'Week '));
-            formData.append('entry.847575500', currentProgress + '%');
-            console.log('Sending to form:', {
-    studentName: studentName,
-    activityId: activityId,
-    title: activityData.title,
-    type: activityData.type,
-    day: dayId.replace('day', 'Day '),
-    week: weekId.replace('week', 'Week '),
-    progress: currentProgress + '%'
-});
+            
            const formData = new FormData();
 formData.append('studentName', studentName);
 formData.append('activityId', activityId);
